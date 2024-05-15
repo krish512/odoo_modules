@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+crm_facebook_leads.access_crm_facebook_form,access_crm_facebook_form,crm_facebook_leads.model_crm_facebook_form,base.group_user,1,1,1,1
+crm_facebook_leads.access_crm_facebook_form_field,access_crm_facebook_form_field,crm_facebook_leads.model_crm_facebook_form_field,base.group_user,1,1,1,1
+crm_facebook_leads.access_crm_facebook_form_mapping,access_crm_facebook_form_mapping,crm_facebook_leads.model_crm_facebook_form_mapping,base.group_user,1,1,1,1
