@@ -1,8 +1,8 @@
 import logging
+import time
 from urllib import parse
 
 import requests
-
 from odoo import api, fields, models
 
 _logger = logging.getLogger()
@@ -73,7 +73,7 @@ class CrmLead(models.Model):
                 "id_facebook_lead": lead["id"],
                 "facebook_is_organic": lead["is_organic"],
                 "name": self.get_opportunity_name(vals, lead, form),
-                "description": "\n".join(notes),
+                "description": "<br/>\n".join(notes),
                 "team_id": form.team_id and form.team_id.id,
                 "campaign_id": form.campaign_id and form.campaign_id.id or self.get_campaign(lead),
                 "source_id": form.source_id and form.source_id.id,
@@ -136,6 +136,7 @@ class CrmLead(models.Model):
 
     def lead_processing(self, response, form):
         data = response.get("data", False)
+        next = ""
         while data:
             # /!\ NOTE: Once finished a page let us commit that
             with self.env.cr.savepoint():
@@ -148,14 +149,20 @@ class CrmLead(models.Model):
                         self.lead_creation(lead, form)
 
             if response.get("paging", {}).get("next"):
-                res = requests.get(response["paging"]["next"]).json()
-                data = res.get("data", False)
+                if response["paging"]["next"] == next:
+                    data = False
+                else:
+                    next = response["paging"]["next"]
+                    res = requests.get(response["paging"]["next"]).json()
+                    data = res.get("data", False)
             else:
                 data = False
 
     @api.model
     def get_facebook_leads(self):
         fb_api = self.env["ir.config_parameter"].get_param("facebook.api.url")
+        unix_time = int(time.time())
+        scrape_time = unix_time - 21600
         for form in self.env["crm.facebook.form"].search([("allow_to_sync", "=", True)]):
             # /!\ NOTE: We have to try lead creation if it fails we just log it into the Lead Form?
             _logger.info("Starting to fetch leads from Form: %s", form.name)
@@ -163,13 +170,7 @@ class CrmLead(models.Model):
             params = {
                 "access_token": form.access_token,
                 "fields": "created_time,field_data,ad_id,ad_name,adset_id,adset_name,campaign_id,campaign_name,is_organic",
-                "filtering": [
-                    {
-                        "field": "time_created",
-                        "operator": "GREATER_THAN",
-                        "value": 1537920000,
-                    }
-                ],
+                "filtering": [{"field": "time_created", "operator": "GREATER_THAN", "value": scrape_time}],
             }
             response = requests.get(var, params=parse.urlencode(params)).json()
             self.lead_processing(response, form)
