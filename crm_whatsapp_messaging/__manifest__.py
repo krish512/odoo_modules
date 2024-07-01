@@ -1,0 +1,20 @@
+{
+    "name": "Whatsapp Message for Leads",
+    "version": "17.0.1.0.0",
+    "category": "CRM",
+    "summary": "Whatspp Web integration with Odoo CRM to send messages to leads directly over WhatsApp.",
+    "description": "This module helps you to directly send messages to your Leads mobile through WhatsApp web.",
+    "author": "CodeAngle Technologies Pvt Ltd",
+    "website": "https://codeangle.in",
+    "maintainer": "CodeAngle Technologies Pvt Ltd",
+    "company": "CodeAngle Technologies Pvt Ltd",
+    "depends": ["crm"],
+    "data": [
+        "security/ir.model.access.csv",
+        "views/crm_lead_views.xml",
+        "wizard/whatsapp_send_message_views.xml",
+    ],
+    "license": "GPL-3",
+    "installable": True,
+    "application": True,
+}
